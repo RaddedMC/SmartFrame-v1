@@ -1,1 +1,3 @@
 RaddedMC's project smart photo frame is still a work in progess...
+
+pip install pychromecast
