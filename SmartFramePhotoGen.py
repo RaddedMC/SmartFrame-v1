@@ -1,10 +1,6 @@
 #!/bin/env python
 
 # Get data from:
-	# Spotify
-	# Google Cast
-	# Smart devices
-		# preferably IFTTT
 	# Calendar
 	# Google Keep
 	# Last screen of RPI and SolidServ
@@ -14,11 +10,17 @@
 	# User-selectable resolution
 
 # -- IMPORTS --
-import sys
-from PIL import Image, ImageDraw, ImageFont
+import sys #Python official, required
 import datetime
-import Card
-import pychromecast
+from PIL import Image, ImageDraw, ImageFont
+
+import Card #Card class, required
+
+import pychromecast #Only needed for Chromecasts
+#import wget #TODO: Download photos
+
+from phue import Bridge #Only needed for Hue
+
 
 
 # -- BASIC FUNCTIONS --
@@ -105,12 +107,15 @@ def getCardData():
 	sourceName = "Current Time"
 	print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
 
+	minute = str(currentTime.minute)
+	if (len(minute) == 1):
+		minute = "0" + minute
 
 	currentTime = datetime.datetime.now()
 	if currentTime.hour > 12:
-		primaryText = str(currentTime.hour-12) + ":" + str(currentTime.minute) + " PM"
+		primaryText = str(currentTime.hour-12) + ":" + minute + " PM"
 	else:
-		primaryText = str(currentTime.hour) + ":" + str(currentTime.minute) + " AM"
+		primaryText = str(currentTime.hour) + ":" + minute + " AM"
 
 
 	print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
@@ -148,6 +153,7 @@ def getCardData():
 	chromecasts, browser = pychromecast.get_chromecasts()
 	for chromecast in chromecasts:
 		chromecast.wait()
+		print("Discovered Chromecast: " + chromecast.device.friendly_name)
 		if not (chromecast.status.display_name == "Backdrop" or chromecast.status.display_name == None):
 			sourceName = chromecast.device.friendly_name
 			print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
@@ -179,7 +185,8 @@ def getCardData():
 			print("Getting photo from module " + sourceName + "...") #NOT USER CHANGEABLE
 
 
-			photo = "nope"
+			#imageUrl = chromecast.device.icon_url #TODO: Wait for pillow to support downloadable photos or figure it out yourself
+			#photo = wget.download(imageUrl)
 
 
 			if (photo == "nope"):
@@ -193,7 +200,101 @@ def getCardData():
 
 
 
+
 	# HUE
+
+	ipFile = open("hue-ip-addr", "r") #TODO: Should probably have some error checking here
+	ip = ipFile.read()
+	print("Searching for a Philips Hue bridge at " + ip + "...")
+	try:
+		b = Bridge(ip)
+	except:
+		print("Error with Philips hue:") #TODO: Color errors
+		print("You need to run the phue.py setup program and press the button on your Philips Hue bridge to link your device to your Bridge.")
+		print("More instructons are on github.com/RaddedMC/SmartFrame/blob/master/README.MD")
+	
+	groups = b.groups
+	for group in groups:
+		if group.on and not group.name.startswith("hgrp-"):
+			print("Discovered powered light group: " + group.name)
+			sourceName = "Philips Hue"
+			print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+			primaryText = "Lights are ON!"
+
+
+			print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
+			print("Getting secondary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+			secondaryText = group.name + " Lights"
+
+
+			print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
+			print("Getting background color from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+			bgColor = "#333300"
+
+
+			print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
+			print("Getting photo from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+			photo = "nope"
+
+
+			if (photo == "nope"):
+				print(sourceName + " requested to have no photo.") #NOT USER CHANGEABLE
+			else:
+				print(sourceName + "'s photo is named " + photo) #NOT USER CHANGEABLE
+
+			print("Data for " + sourceName + " grabbed successfully.")
+			cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, photo))
+
+
+
+
+	# TEMPLATE
+
+	#sourceName = "Current Time"
+	#print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+	#primaryText = 
+
+
+	#print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
+	#print("Getting secondary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+	#secondaryText = 
+
+
+	#print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
+	#print("Getting background color from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+	#bgColor = "#000000"
+
+
+	#print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
+	#print("Getting photo from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+	#photo = "nope"
+
+
+	#if (photo == "nope"):
+	#	print(sourceName + " requested to have no photo.") #NOT USER CHANGEABLE
+	#else:
+	#	print(sourceName + "'s photo is named " + photo) #NOT USER CHANGEABLE
+
+
+	#print("Data for " + sourceName + " grabbed successfully.")
+	#cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, photo))
+
 
 
 
