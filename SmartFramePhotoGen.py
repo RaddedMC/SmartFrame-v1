@@ -19,6 +19,13 @@ import GetCardData
 
 
 
+# -- SOME GLOBALS --
+defX = 760
+defY = 1280
+
+
+
+
 # -- BASIC FUNCTIONS --
 def throwErr(msg, code = 5):
 	print("Error: " + msg)
@@ -40,24 +47,25 @@ def getHelp():
 
 
 # -- GENPHOTO --
-def genPhoto(xRes, yRes):
+def genPhoto(xRes = defX, yRes = defY):
 	image = Image.new('RGB', (xRes, yRes))
 
-	# Get what data we can find [JSON]
+	# Get what data we can find
 	print("Grabbing card data...")
 	cards = GetCardData.getCardData()
-	print("Data grabbed. Drawing photo:")
+	print("Data recieved. Drawing photo:")
+
 
 	# Generate 'cards' for each of them, (xRes)x320
 	top = 0
 
 	padding = 20 # Easier customization
 	textFill = "white" # should probably make dynamic
-	numCards = 5
-	fontSizeSrc = 30
+	numCards = 6
+	fontSizeSrc = 25
 	fontFile = "/usr/share/fonts/noto/NotoSans-Regular.ttf"
-	fontSize1 = 90
-	fontSize2 = 50
+	fontSize1 = 70
+	fontSize2 = 40
 
 	for card in cards:
 		# Draw background
@@ -71,8 +79,8 @@ def genPhoto(xRes, yRes):
 
 	# Place small placeholder at the bottom for things that failed, if more than can fit just show number+log, if fits show all
 
-	image.save("SmartFramePhoto.png")
-	print("Photo drawn. Saving to SmartFramePhoto.png")
+	image.save("SmartFramePhoto.jpg")
+	print("Photo drawn. Saving to SmartFramePhoto.jpg")
 
 
 # -- MAIN --
@@ -94,8 +102,8 @@ def main():
 			throwErr("Unrecognized argument.")
 
 	else:
-		print("Assuming a default resolution of 720x1280:")
-		genPhoto(720, 1280)
+		print("Assuming a default resolution of " + str(defX) + "x" + str(defY) + ":")
+		genPhoto()
 
 if __name__ == "__main__":
 	main()

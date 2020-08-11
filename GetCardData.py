@@ -6,9 +6,11 @@ import datetime #Needed for datetime card
 import pychromecast #Only needed for Chromecasts
 #import wget #TODO: Download photos
 
-from phue import Bridge #Only needed for Hue
+import phue #Only needed for Hue
 
 import requests, json #For weather
+
+import os #For server notifications
 
 
 
@@ -28,61 +30,17 @@ def getCardData():
 
 
 
+
 	# TIME
+
 	sourceName = "Current Time"
 	print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
 
 
 	currentTime = datetime.datetime.now()
-	if currentTime.hour > 12:
-		primaryText = str(currentTime.hour-12) + ":" + str(currentTime.minute) + " PM"
-	else:
-		primaryText = str(currentTime.hour) + ":" + str(currentTime.minute) + " AM"
-
-
-	print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
-	print("Getting secondary data from module " + sourceName + "...") #NOT USER CHANGEABLE
-
-
-	secondaryText = str(currentTime.month) + "-" + str(currentTime.day) + "-" + str(currentTime.year)
-
-
-	print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
-	print("Getting background color from module " + sourceName + "...") #NOT USER CHANGEABLE
-
-
-	bgColor = "#000000"
-
-
-	print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
-	print("Getting photo from module " + sourceName + "...") #NOT USER CHANGEABLE
-
-
-	photo = "nope"
-
-
-	if (photo == "nope"):
-		print(sourceName + " requested to have no photo.") #NOT USER CHANGEABLE
-	else:
-		print(sourceName + "'s photo is named " + photo) #NOT USER CHANGEABLE
-
-
-	print("Data for " + sourceName + " grabbed successfully.")
-	cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, photo))
-
-
-
-
-
-	# TIME
-	sourceName = "Current Time"
-	print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
-
 	minute = str(currentTime.minute)
 	if (len(minute) == 1):
 		minute = "0" + minute
-
-	currentTime = datetime.datetime.now()
 	if currentTime.hour > 12:
 		primaryText = str(currentTime.hour-12) + ":" + minute + " PM"
 	else:
@@ -115,7 +73,53 @@ def getCardData():
 	else:
 		print(sourceName + "'s photo is named " + photo) #NOT USER CHANGEABLE
 
+	print("Data for " + sourceName + " grabbed successfully.")
+	cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, photo))
 
+
+
+
+	# SERVER NOTIFICATIONS
+	print("Checking notifications directory...")
+	for file in os.listdir(os.getcwd() + "/Notifications"):
+		fileLocation = os.getcwd() + "/Notifications/" + file
+		print("Notification from " + file + "!")
+		sourceName = file
+		print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+		lines = [line.rstrip('\n') for line in open(fileLocation, "r").readlines()]
+		try:
+			if lines[2] != "0" and len(lines) == 3 and isinstance(int(lines[2]), int):
+				primaryText = lines[0]
+				print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
+				print("Getting secondary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+				secondaryText = lines[1]
+				print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
+				print("Getting background color from module " + sourceName + "...") #NOT USER CHANGEABLE
+				if lines[2] == "1":
+					bgColor = "#440000"
+				else:
+					bgColor = "#444444"
+				print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
+				print(sourceName + " requested to have no photo.") #NOT USER CHANGEABLE
+				print("Data for " + sourceName + " grabbed successfully.")
+				cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, "nope"))
+				lines[2] = int(lines[2]) - 1
+				file = open(fileLocation, "w")
+				file.write(lines[0]+"\n"+lines[1]+"\n"+str(lines[2]))
+				file.close()
+			else:
+				print("Notification has expired or file is invalid. Deleting " + fileLocation + "...")
+				os.remove(fileLocation)
+		except (IndexError, ValueError) as E:
+
+			print("Notification file " + fileLocation + " is invalid. Deleting file...")
+			print(E)
+			os.remove(fileLocation)
+
+
+		
 
 
 	# CHROMECASTS
@@ -145,11 +149,13 @@ def getCardData():
 
 
 			if secondaryText == "YouTube" or secondaryText == "Netflix":
-				bgColor = "#330000"
+				bgColor = "#440000"
 			elif secondaryText == "Spotify":
-				bgColor = "#003300"
+				bgColor = "#004400"
+			elif secondaryText == "Bluetooth Audio":
+				bgColor = "#000044"
 			else:
-				bgColor = "#333333"
+				bgColor = "#444444"
 
 
 			print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
@@ -173,6 +179,7 @@ def getCardData():
 
 
 	# HUE
+	
 	ipfailed = False
 	try:
 		ipFile = open("hue-ip-addr", "r") #TODO: Should probably have some error checking here
@@ -185,7 +192,7 @@ def getCardData():
 	if not ipfailed:
 		try:
 			print("Searching for a Philips Hue bridge at " + ip + "...")
-			b = Bridge(ip)
+			b = phue.Bridge(ip)
 			groups = b.groups
 			for group in groups:
 				if group.on and not group.name.startswith("hgrp-"):
@@ -208,7 +215,7 @@ def getCardData():
 					print("Getting background color from module " + sourceName + "...") #NOT USER CHANGEABLE
 
 
-					bgColor = "#333300"
+					bgColor = "#" + 2*(hex(round((group.brightness*0.2666666))).replace("0x","")) + "00"
 
 
 					print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
@@ -225,10 +232,12 @@ def getCardData():
 
 					print("Data for " + sourceName + " grabbed successfully.")
 					cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, photo))
-		except:
+		except phue.PhueRegistrationException:
 			print("Error with Philips hue:") #TODO: Color errors
 			print("You need to run the phue.py setup program and press the button on your Philips Hue bridge to link your device to your Bridge.")
 			print("More instructons are on github.com/RaddedMC/SmartFrame/blob/master/README.MD")
+		except:
+			print("Unknown error with Philips Hue. check the traceback above for details.")
 
 
 
@@ -276,4 +285,5 @@ def getCardData():
 
 
 	#data grabbing code ends here
+	print("Data ready.")
 	return cards
