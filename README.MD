@@ -2,9 +2,13 @@
 
 - Dependencies:
 	- pychromecast for Chromecast integration
-	- phue for Hue integration
+	- phue for Hue integration, check out https://github.com/studioimaginaire/phue for setup plus you need a hue-ip-addr file in the SmartFrame folder containing your bridge's IP Address
 	- Pillow to draw image
 	- **Python 3**
+	- spotipy for Spotify integration, you need to get an API client ID and client Secret and add them to your environment variables under the name 'SPOTIPY_CLIENT_ID' and 'SPOTIPY_CLIENT_SECRET'. More instructions at https://spotipy.readthedocs.io/en/2.14.0/, also add a spotify-user file with your username
+	- wget to download photos, used in spotify integration
+	- colorgram to get color from Spotify album art
+	- *everything above can be installed with 'pip install \[thing\]'
 	
 - Setup:
 	- Create your own bash script to run in the background on whatever device you want to drive your photo frame, or use mine (FrameScript.sh, run as root with BASH) and make the necessary modifications

@@ -3,14 +3,13 @@ import Card #Card class, required
 
 import datetime #Needed for datetime card
 
-import pychromecast #Only needed for Chromecasts
-#import wget #TODO: Download photos
-
-import phue #Only needed for Hue
+import wget #For downloading photos
 
 import requests, json #For weather
 
-import os #For server notifications
+
+
+
 
 
 
@@ -38,20 +37,14 @@ def getCardData():
 
 
 	currentTime = datetime.datetime.now()
-	minute = str(currentTime.minute)
-	if (len(minute) == 1):
-		minute = "0" + minute
-	if currentTime.hour > 12:
-		primaryText = str(currentTime.hour-12) + ":" + minute + " PM"
-	else:
-		primaryText = str(currentTime.hour) + ":" + minute + " AM"
+	primaryText = currentTime.strftime("%-I:%M %p")
 
 
 	print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
 	print("Getting secondary data from module " + sourceName + "...") #NOT USER CHANGEABLE
 
 
-	secondaryText = str(currentTime.month) + "-" + str(currentTime.day) + "-" + str(currentTime.year)
+	secondaryText = currentTime.strftime("%A %B %-d, %Y")
 
 
 	print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
@@ -80,6 +73,7 @@ def getCardData():
 
 
 	# SERVER NOTIFICATIONS
+	import os #For server notifications
 	print("Checking notifications directory...")
 	for file in os.listdir(os.getcwd() + "/Notifications"):
 		fileLocation = os.getcwd() + "/Notifications/" + file
@@ -119,17 +113,91 @@ def getCardData():
 			os.remove(fileLocation)
 
 
+
+
+	# SPOTIFY
+	import spotipy
+	from spotipy.oauth2 import SpotifyOAuth #For Spotify integration, NEED AN API KEY FOR YOUR ACCOUNT!
+	print("Attempting to talk to Spotify...")
+	spotify_scope = "user-read-currently-playing"
+	do_a_spotify = True
+	try:
+		userFile = open("spotify-user", "r") #TODO: Should probably have some error checking here
+		spotify_user = userFile.read()
+	except FileNotFoundError:	
+		print("Spotify username file not found. Spotify support is disabled.")
+		print("Create a file named spotify-user within the same directory as this python program containing your Spotify username. This is used to read the name of your currently playing playlist.")
+		do_a_spotify = False
+
+	try:
+		spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=spotify_scope, redirect_uri="http://127.0.0.1:9090", cache_path=".spotifcache"))
+		current_track = spotify.current_user_playing_track()
+	except:
+		print("Failed to get data from Spotify!")
+		do_a_spotify = False
+
+	try:
+		current_list = spotify.user_playlist(user=spotify_user, playlist_id=current_track["context"]["uri"], fields="name")
+	except TypeError:
+		current_list = {'name':'Now Playing'}
+		
+	if do_a_spotify==True and current_track["is_playing"]==True:
+		sourceName = "Spotify - " + current_list["name"]
+		print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+		primaryText = current_track["item"]["name"]
+
+
+		print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
+		print("Getting secondary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+		secondaryText = current_track["item"]["artists"][0]["name"] + " - " + current_track["item"]["album"]["name"]
+
+
+		print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
+		print("Getting background color from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+		bgColor = "#004400"
+
+
+		print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
+		print("Getting photo from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+		try:
+			photo = wget.download(current_track["item"]["album"]["images"][2]["url"])
+			import colorgram
+			rgb = colorgram.extract(photo, 1)[0].rgb
+			from math import ceil
+			bgColor = '#%02x%02x%02x' % (ceil(rgb[0]*0.4), ceil(rgb[1]*0.4), ceil(rgb[2]*0.4))
+			print("background changed! " + bgColor) #NOT USER CHANGEABLE
+		except urllib.error.URLError:
+			photo = "nope"
+
+
+		if (photo == "nope"):
+			print(sourceName + " requested to have no photo.") #NOT USER CHANGEABLE
+		else:
+			print(sourceName + "'s photo is named " + photo) #NOT USER CHANGEABLE
+
+
+		print("Data for " + sourceName + " grabbed successfully.")
+		cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, photo))
+
 		
 
 
 	# CHROMECASTS
-
+	import pychromecast #Only needed for Chromecasts
 	print("Searching for Chromecasts on the network...")
 	chromecasts, browser = pychromecast.get_chromecasts()
 	for chromecast in chromecasts:
 		chromecast.wait()
 		print("Discovered Chromecast: " + chromecast.device.friendly_name)
-		if not (chromecast.status.display_name == "Backdrop" or chromecast.status.display_name == None):
+		if not (chromecast.status.display_name == "Backdrop" or chromecast.status.display_name == None or chomecast.status.display_name == "Spotify"):
 			sourceName = chromecast.device.friendly_name
 			print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
 
@@ -150,8 +218,6 @@ def getCardData():
 
 			if secondaryText == "YouTube" or secondaryText == "Netflix":
 				bgColor = "#440000"
-			elif secondaryText == "Spotify":
-				bgColor = "#004400"
 			elif secondaryText == "Bluetooth Audio":
 				bgColor = "#000044"
 			else:
@@ -179,7 +245,8 @@ def getCardData():
 
 
 	# HUE
-	
+
+	import phue #Only needed for Hue
 	ipfailed = False
 	try:
 		ipFile = open("hue-ip-addr", "r") #TODO: Should probably have some error checking here

@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 import Card #Card class, required
 import GetCardData
+import os
 
 
 
@@ -76,6 +77,9 @@ def genPhoto(xRes = defX, yRes = defY):
 		draw.text((padding, top+padding+padding/2+fontSizeSrc), card.primaryText, fill = textFill, font=ImageFont.truetype(font=fontFile, size=fontSize1))
 		draw.text((padding, top+padding+padding+fontSizeSrc+padding/2+fontSize1), card.secondaryText, fill = textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
 		top+=yRes/numCards
+		
+		if not card.imageDir == 'nope':
+			os.remove(card.imageDir)
 
 	# Place small placeholder at the bottom for things that failed, if more than can fit just show number+log, if fits show all
 
