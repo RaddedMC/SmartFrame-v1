@@ -75,7 +75,7 @@ def getCardData():
 	# SERVER NOTIFICATIONS
 	import os #For server notifications
 	print("Checking notifications directory...")
-	for file in os.listdir(os.getcwd() + "/Notifications"):
+	for file in os.listdir(os.getcwd() + "/Notifications/"):
 		fileLocation = os.getcwd() + "/Notifications/" + file
 		print("Notification from " + file + "!")
 		sourceName = file
@@ -129,17 +129,27 @@ def getCardData():
 		print("Create a file named spotify-user within the same directory as this python program containing your Spotify username. This is used to read the name of your currently playing playlist.")
 		do_a_spotify = False
 
-	try:
-		spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=spotify_scope, redirect_uri="http://127.0.0.1:9090", cache_path=".spotifcache"))
-		current_track = spotify.current_user_playing_track()
-	except:
-		print("Failed to get data from Spotify!")
-		do_a_spotify = False
+	if do_a_spotify:
+		try:
+			spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=spotify_scope, redirect_uri="http://127.0.0.1:9090", cache_path=".spotifcache")) #Use an environment varaiable or pass in your keys here, use a web browser to authenticate. If running headless, download a simple browser and forward the X session over SSH.
+			# I know this is a stupid way to do things, but for a personal project it worked fine for me.
+			current_track = spotify.current_user_playing_track()
+			if current_track == False:
+                print("Nothing is playing on your Spotify Account.")
+                do_a_spotify = False
+            if current_track["is_playing"] == False:
+                print("Spotify is paused.")
+                do_a_spotify = False
 
-	try:
-		current_list = spotify.user_playlist(user=spotify_user, playlist_id=current_track["context"]["uri"], fields="name")
-	except TypeError:
-		current_list = {'name':'Now Playing'}
+		except:
+			print("Failed to get data from Spotify!")
+			do_a_spotify = False
+
+	if do_a_spotify:
+		try:
+			current_list = spotify.user_playlist(user=spotify_user, playlist_id=current_track["context"]["uri"], fields="name")
+		except TypeError:
+			current_list = {'name':'Now Playing'}
 		
 	if do_a_spotify==True and current_track["is_playing"]==True:
 		sourceName = "Spotify - " + current_list["name"]
