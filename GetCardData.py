@@ -135,11 +135,11 @@ def getCardData():
 			# I know this is a stupid way to do things, but for a personal project it worked fine for me.
 			current_track = spotify.current_user_playing_track()
 			if current_track == False:
-                print("Nothing is playing on your Spotify Account.")
-                do_a_spotify = False
-            if current_track["is_playing"] == False:
-                print("Spotify is paused.")
-                do_a_spotify = False
+				print("Nothing is playing on your Spotify Account.")
+				do_a_spotify = False
+			if current_track["is_playing"] == False:
+				print("Spotify is paused.")
+				do_a_spotify = False
 
 		except:
 			print("Failed to get data from Spotify!")
