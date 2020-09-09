@@ -5,7 +5,7 @@
 	- phue for Hue integration, check out https://github.com/studioimaginaire/phue for setup plus you need a hue-ip-addr file in the SmartFrame folder containing your bridge's IP Address
 	- Pillow to draw image
 	- **Python 3**
-	- spotipy for Spotify integration, you need to get an API client ID and client Secret and add them to your environment variables under the name 'SPOTIPY_CLIENT_ID' and 'SPOTIPY_CLIENT_SECRET'. More instructions at https://spotipy.readthedocs.io/en/2.14.0/, also add a spotify-user file with your username
+	- spotipy for Spotify integration, you need to get an API client ID and client Secret. Set your redirect URI to http://127.0.0.1:9090 and put your Spotify username, client-id, and client-secret into a file named spotify-user (in that order) in the SmartFrame folder, seperated by line breaks. You'll also need a web browser installed on your system to sign into your account and get an OAuth token. If you're running headless like I am, download a small browser like surf and forward X from your server to your remote access client.
 	- wget to download photos, used in spotify integration
 	- colorgram to get color from Spotify album art
 	- *everything above can be installed with 'pip install \[thing\]'

@@ -123,15 +123,19 @@ def getCardData():
 	do_a_spotify = True
 	try:
 		userFile = open("spotify-user", "r") #TODO: Should probably have some error checking here
-		spotify_user = userFile.read()
+		spotify_user = userFile.readline().rstrip("\n")
+		client_id = userFile.readline().rstrip("\n")
+		client_secret = userFile.readline().rstrip("\n")
 	except FileNotFoundError:	
 		print("Spotify username file not found. Spotify support is disabled.")
 		print("Create a file named spotify-user within the same directory as this python program containing your Spotify username. This is used to read the name of your currently playing playlist.")
 		do_a_spotify = False
+	except:
+		print("Unknown error getting your spotify information. Read the readme.MD file and make sure you've created your user info file correctly.")
 
 	if do_a_spotify:
 		try:
-			spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=spotify_scope, redirect_uri="http://127.0.0.1:9090", cache_path=".spotifcache")) #Use an environment varaiable or pass in your keys here, use a web browser to authenticate. If running headless, download a simple browser and forward the X session over SSH.
+			spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=spotify_scope, redirect_uri="http://127.0.0.1:9090", cache_path=".spotifcache", client_id=client_id, client_secret=client_secret)) #Use an environment varaiable or pass in your keys here, use a web browser to authenticate. If running headless, download a simple browser and forward the X session over SSH.
 			# I know this is a stupid way to do things, but for a personal project it worked fine for me.
 			current_track = spotify.current_user_playing_track()
 			if current_track == False:
@@ -207,7 +211,7 @@ def getCardData():
 	for chromecast in chromecasts:
 		chromecast.wait()
 		print("Discovered Chromecast: " + chromecast.device.friendly_name)
-		if not (chromecast.status.display_name == "Backdrop" or chromecast.status.display_name == None or chomecast.status.display_name == "Spotify"):
+		if not (chromecast.status.display_name == "Backdrop" or chromecast.status.display_name == None or chromecast.status.display_name == "Spotify"):
 			sourceName = chromecast.device.friendly_name
 			print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
 
