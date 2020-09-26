@@ -62,24 +62,43 @@ def genPhoto(xRes = defX, yRes = defY):
 
 	padding = 20 # Easier customization
 	textFill = "white" # should probably make dynamic
+	cardOutline = "white"
 	numCards = 6
 	fontSizeSrc = 25
 	fontFile = "/usr/share/fonts/noto/NotoSans-Regular.ttf"
+	fontSize0 = 140
 	fontSize1 = 70
 	fontSize2 = 40
+	numsquarecards = 0
 
 	for card in cards:
 		# Draw background
 
 		draw = ImageDraw.Draw(image)
-		draw.rectangle([(0, top),(xRes, top+(yRes/numCards))], fill=card.backgroundColor, outline="white")
-		draw.text((padding, top+padding), card.sourceName, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
-		draw.text((padding, top+padding+padding/2+fontSizeSrc), card.primaryText, fill = textFill, font=ImageFont.truetype(font=fontFile, size=fontSize1))
-		draw.text((padding, top+padding+padding+fontSizeSrc+padding/2+fontSize1), card.secondaryText, fill = textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
-		top+=yRes/numCards
+		if card.sourceName == "Current Time":
+			draw.text((padding*5, top+padding*3), card.primaryText, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSize0))
+			draw.text((padding*5, top+padding), card.secondaryText, fill = textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
+			top+=(yRes/numCards)+padding*2
+		elif card.sourceName[0:7] == "Spotify":
+			draw.rectangle([(0, top),(xRes, (top+(yRes/numCards)/2))], fill=card.backgroundColor, outline=cardOutline)
+			draw.text((padding, top+padding/2), card.sourceName[10:], fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
+			draw.text((padding, top+padding*2), card.primaryText + " - " + card.secondaryText, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
+			top+=yRes/(numCards*2)
+		elif card.sourceName == "Philips Hue":
+			draw.rectangle([((padding/2*(numsquarecards+1))+numsquarecards*(xRes/4), top+(padding/2)),((padding/2)+numsquarecards*(xRes/4)+(xRes/4), top+(padding/2)+xRes/8)], fill=card.backgroundColor, outline=cardOutline)
+			draw.text(((padding/2*(numsquarecards+1)+numsquarecards*(xRes/4)+padding/2), (top+(padding/2)+padding/2)), card.secondaryText[0:12], fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
+			draw.text(((padding/2*(numsquarecards+1)+numsquarecards*(xRes/4)+padding/2), (top+(padding/2)+padding/2)+30), card.primaryText, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
+			numsquarecards+=1
+		else:
+			draw.rectangle([(0, top),(xRes, top+(yRes/numCards))], fill=card.backgroundColor, outline=cardOutline)
+			draw.text((padding, top+padding), card.sourceName, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
+			draw.text((padding, top+padding+padding/2+fontSizeSrc), card.primaryText, fill = textFill, font=ImageFont.truetype(font=fontFile, size=fontSize1))
+			draw.text((padding, top+padding+padding+fontSizeSrc+padding/2+fontSize1), card.secondaryText, fill = textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
+			top+=yRes/numCards
 		
 		if not card.imageDir == 'nope':
 			os.remove(card.imageDir)
+		print("Finished card " + card.sourceName)
 
 	# Place small placeholder at the bottom for things that failed, if more than can fit just show number+log, if fits show all
 
