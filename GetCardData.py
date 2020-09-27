@@ -271,6 +271,7 @@ def getCardData():
 
 				#imageUrl = chromecast.device.icon_url #TODO: Wait for pillow to support downloadable photos or figure it out yourself
 				#photo = wget.download(imageUrl)
+				photo = "nope"
 
 
 				if (photo == "nope"):

@@ -40,7 +40,7 @@ def isThisANumber(isit):
 		return False
 
 def getHelp():
-	print("Usage: SmartFramePhotoGen.py [x-resolution] [y-resolution]\nDefault resolution is " + str(defX) + " x " + str(defY) + ". For help with specific sections, check out the README.MD")
+	print("Usage: SmartFramePhotoGen.py [x-resolution] [y-resolution]\nDefault resolution is " + str(defX) + " x " + str(defY) + ". For help with specific sections, check out the README.MD\nTHIS IS THE FAILOVER VERSION!")
 	exit(0)
 	#TODO: ADD MORE TO THIS
 
