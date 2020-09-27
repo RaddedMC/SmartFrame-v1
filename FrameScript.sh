@@ -3,7 +3,7 @@ echo "Run this script as root."
 
 echo "18" > /sys/class/gpio/export
 echo "out" > /sys/class/gpio/gpio18/direction
-cd /home/dietpi/SmartFrame
+cd /home/pi/SmartFrame
 
 while true; do
 	HOUR=`date "+%-H"`

@@ -25,5 +25,7 @@
 	- Card.py: The class that stores the data to be converted to a photo
 	- GetCardData.py: The function that grabs the data from the internet, separated to keep the image generation code which won't be modified much and the data pulling code which will probably vary from user to user in two different places. Feel free to modify this function to fit your needs, just keep in mind that only 6 cards will show up by default.
 	- SmartFramePhotoGen.py: The main file for this project, which also contains the image generation code. Feel free to modify this to fit your needs, it also takes two arguments for a custom x and y resolution if you want. My S-frame is around 600x1280 (vertical), so that's the default.
+
+Note: This program assumes that you are controlling your photo frame with rasbian and that your username is 'pi'.
 	
 Feel free to dm me on Insta @RaddedMC or Discord at RaddedMC#4791 for any questions, also check out my video showing off my setup with SmartFrame: https://youtu.be/YDr95xaEsK4
