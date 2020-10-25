@@ -1,4 +1,4 @@
-**RaddedMC's Project SmartFrame**
+# RaddedMC's Project SmartFrame
 
 - Dependencies:
 	- pychromecast for Chromecast integration
