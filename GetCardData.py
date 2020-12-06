@@ -302,7 +302,7 @@ def getCardData():
 		with timeout(10):
 			try:
 				print("Searching for a Philips Hue bridge at " + ip + "...")
-				b = phue.Bridge(ip)
+				b = phue.Bridge(ip.rstrip("\n"))
 				groups = b.groups
 				for group in groups:
 					lightdown = False
@@ -380,6 +380,81 @@ def getCardData():
 
 
 
+	# iCloud
+	from pyicloud import PyiCloudService
+	from pyicloud import exceptions
+	emailFailed = False
+	try:
+		emailFile = open("icloudemail", "r") #TODO: Should probably have some error checking here
+		email = emailFile.read()
+	except FileNotFoundError:	
+		print("Email file not found. iCloud support is disabled.")
+		print("Create a file named icloudemail within the same directory as this python program containing your iCloud Email Address to enable device batteries and other features.")
+		emailFailed = True
+	
+	if not emailFailed:
+		with timeout(30):
+			try:
+				api = PyiCloudService(email.rstrip("\n"))
+			except exceptions.PyiCloudFailedLoginException:
+				print("Login to iCloud failed. Make sure that your iCloud password is saved to your system keyring. See github.com/picklepete/pyicloud or the SmartFrame README for more info.")
+			else:
+				try:
+					for device in api.devices:
+						if not device['rawDeviceModel'] == 'iPad3,1':
+							sourceName = device['name']
+							
+							print("Getting primary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+							
+							
+							primaryText = str(round(100*device['batteryLevel'])) + "% Battery"
+							if primaryText == "69% Battery":
+								primaryText += ". Nice"
+					
+							
+							print("primary data grabbed successfully! " + primaryText) #NOT USER CHANGEABLE
+							print("Getting secondary data from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+							if device['batteryStatus'] == "NotCharging":
+								secondaryText = "Not Charging"
+							elif device['batteryStatus'] == "Charging":
+								secondaryText = "Charging"
+							
+								
+							print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
+							print("Getting background color from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+							
+							if device['batteryLevel'] > 0.5:
+								bgColor = "#004400"
+							elif device['batteryLevel'] > 0.2:
+								bgColor = "#444400"
+							else:
+								bgColor = "#440000"
+
+
+							print("background color grabbed successfully! " + bgColor) #NOT USER CHANGEABLE
+							print("Getting photo from module " + sourceName + "...") #NOT USER CHANGEABLE
+
+
+							photo = "nope"
+
+
+							if (photo == "nope"):
+								print(sourceName + " requested to have no photo.") #NOT USER CHANGEABLE
+							else:
+								print(sourceName + "'s photo is named " + photo) #NOT USER CHANGEABLE
+
+
+							print("Data for " + sourceName + " grabbed successfully.")
+							cards.append(Card.Card(sourceName, primaryText, secondaryText, bgColor, photo))
+				except:
+					print("Unknown error with iCloud integration. Check the above traceback for details.")
+	
+	
+	
+	
 	# TEMPLATE
 
 	#sourceName = "Current Time"

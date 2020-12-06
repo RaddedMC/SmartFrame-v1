@@ -9,6 +9,8 @@
 	- wget to download photos, used in spotify integration
 	- colorgram to get color from Spotify album art
 	- *everything above can be installed with 'pip install \[thing\]'
+	- pyicloud for iCloud integration, check out https://github.com/picklepete/pyicloud to add your creds to system keyring and create a file named icloudemail in the SmartFrame folder that contains your iCloud account's e-mail address.
+		**Setting up iCloud integration will cause your devices to recieve frequent 'account access' messages that you'll need to accept. This is normal and is unfortunately the only way that API works. It is also possible that your devices may experience slightly decreased battery life from the increased Find My iPhone requests. Once I spend more time with this integration enabled I will make any necessary tweaks.**
 	
 - Setup:
 	- Create your own bash script to run in the background on whatever device you want to drive your photo frame, or use mine (FrameScript.sh, run as root with BASH) and make the necessary modifications
