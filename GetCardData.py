@@ -420,6 +420,8 @@ def getCardData():
 								secondaryText = "Not Charging"
 							elif device['batteryStatus'] == "Charging":
 								secondaryText = "Charging"
+							else:
+								secondaryText = device['batteryStatus']
 							
 								
 							print("secondary data grabbed successfully! " + secondaryText) #NOT USER CHANGEABLE
