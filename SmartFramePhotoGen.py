@@ -72,7 +72,8 @@ def genPhoto(xRes = defX, yRes = defY):
 	numhuecards = 0
 	numicloudcards = 0
 
-	for card in cards:
+	for i in range(0,len(cards)):
+		card = cards[i]
 		# Draw background
 
 		draw = ImageDraw.Draw(image)
@@ -92,20 +93,29 @@ def genPhoto(xRes = defX, yRes = defY):
 			
 		# Hue
 		elif card.sourceName == "Philips Hue":
-			draw.rectangle([(padding+numhuecards*(xRes/4), top+(padding/2)),(padding/2+numhuecards*(xRes/4)+(xRes/4), top+(padding/2)+xRes/8)], fill=card.backgroundColor, outline=cardOutline)
+			draw.rectangle([(padding+numhuecards*(xRes/4), top+(padding/2)-numHueCards*(top+(padding/2)+xRes/8 - top+(padding/2))),(padding/2+numhuecards*(xRes/4)+(xRes/4), top+(padding/2)+xRes/8)], fill=card.backgroundColor, outline=cardOutline)
 			draw.text((padding+numhuecards*(xRes/4)+padding/2, (top+(padding/2)+padding/2)), card.secondaryText[0:12], fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
 			draw.text((padding+numhuecards*(xRes/4)+padding/2, (top+(padding/2)+padding/2)+30), card.primaryText, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
-			numhuecards+=1
-			top+= top+(padding/2)+xRes/8 - top+(padding/2)
+			numhuecards+=1			
+			try:
+				if not cards[i+1].sourceName == "Philips Hue":
+					top+= top+(padding/2)+xRes/8 - top+(padding/2)
+			except IndexError: 
+				top+= top+(padding/2)+xRes/8 - top+(padding/2)
 			
 		# iDevice
-		elif card.secondaryText.endswith("Charging"):
+		elif card.primaryText.endswith("Battery"):
 			draw.rectangle([(padding+numicloudcards*(xRes/4), top+(padding/2)),(padding/2+numicloudcards*(xRes/4)+(xRes/4), top+(padding/4)+xRes/4)], fill=card.backgroundColor, outline=cardOutline)
 			draw.text((padding+numicloudcards*(xRes/4)+padding/2, (top+(padding/2)+padding/2)+20), card.primaryText[0:3], fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSize1))
 			draw.text((padding+numicloudcards*(xRes/4)+padding/2, (top+(padding/2)+115)), card.primaryText[3:], fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
 			draw.text((padding+numicloudcards*(xRes/4)+padding/2, (top+(padding/2)+144)), card.secondaryText, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
 			draw.text((padding+numicloudcards*(xRes/4)+padding/2, (top+(padding/2))), card.sourceName[0:12], fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
 			numicloudcards+=1
+			try:
+				if not cards[i+1].primaryText.endswith("Battery"):
+					top+= (padding/2)+xRes/4
+			except IndexError: 
+				top+= (padding/2)+xRes/4
 			
 		# Other
 		else:
