@@ -93,7 +93,7 @@ def genPhoto(xRes = defX, yRes = defY):
 			
 		# Hue
 		elif card.sourceName == "Philips Hue":
-			draw.rectangle([(padding+numhuecards*(xRes/4), top+(padding/2)-numHueCards*(top+(padding/2)+xRes/8 - top+(padding/2))),(padding/2+numhuecards*(xRes/4)+(xRes/4), top+(padding/2)+xRes/8)], fill=card.backgroundColor, outline=cardOutline)
+			draw.rectangle([(padding+numhuecards*(xRes/4), top+(padding/2)-numhuecards*(top+(padding/2)+xRes/8 - top+(padding/2))),(padding/2+numhuecards*(xRes/4)+(xRes/4), top+(padding/2)+xRes/8)], fill=card.backgroundColor, outline=cardOutline)
 			draw.text((padding+numhuecards*(xRes/4)+padding/2, (top+(padding/2)+padding/2)), card.secondaryText[0:12], fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSizeSrc))
 			draw.text((padding+numhuecards*(xRes/4)+padding/2, (top+(padding/2)+padding/2)+30), card.primaryText, fill=textFill, font=ImageFont.truetype(font=fontFile, size=fontSize2))
 			numhuecards+=1			
