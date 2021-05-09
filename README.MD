@@ -1,4 +1,5 @@
 # RaddedMC's Project SmartFrame
+SmartFrame v2 is in progress. No more major changes will be made to this repo. Join my Discord for further updates: https://discord.gg/9Ms4bFw
 
 - Dependencies:
 	- pychromecast for Chromecast integration
